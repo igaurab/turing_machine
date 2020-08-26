@@ -148,7 +148,7 @@
     <ClInclude Include="test_tape.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="program.txt" />
+    <Text Include="program.tm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

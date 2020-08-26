@@ -1,5 +1,11 @@
 #include <iostream>
+#include <fstream>
 #include <string>
+#include <sstream>
+#include <regex>
+#include <map>
+#include <iterator>
+
 #include "test_tape.h"
 
 using namespace std;
@@ -10,26 +16,52 @@ int main() {
 	bool halt = false;
 	bool verbose = false;
 
-	string commands[100][4] = {
-		{"write","1"}, //1
-		{"move","left"}, //2
-		{"write","0"}, //3
-		{"move","right"}, //4
+	vector<vector<string> > commands;
+	map<string, int> labels;
 
-		{"move","right"}, //5
-		{"write","1"}, //6
+	ifstream file;
+	std::string line;
+	
+	file.open("program.tm");
+	std::string temp;
+	vector<string> words;
+	int line_number = 0;
+	while (std::getline(file, line)) {
+		bool f_ignore = false;
+		int word_index = 0;
+		std::istringstream iss(line);
 
-		{"if","1","11"}, //7
-		{"if","0","9"}, //8
+		if (!line.size()) {
+			f_ignore = true;
+		}
 
-		{"accept"}, //9
-		{"reject"}, //10
+		while (iss >> temp) {
+			
+			if (word_index == 0 || word_index == 1) {
+				if (word_index == 0 && (temp == "#")) {
+						f_ignore = true;
+				}
 
-		{"move","right"}, //11
-		{"write","0"}, //12
-		{"goto", "10"} //13
-	};
+				if (word_index == 1) {
 
+				}
+			}
+			if(!f_ignore) words.push_back(temp);
+		}
+		if (!f_ignore) commands.push_back(words);
+		words.clear();
+	}
+	file.close();
+	
+	for (int i = 0; i < commands.size(); i++)
+	{
+		for (int j = 0; j < commands[i].size(); j++)
+		{
+			cout << commands[i][j] << " ";
+		}
+		cout << endl;
+	}
+	
 	Tape tape;
 	tape.moveToPosition(20);
 	while(!halt) {
@@ -63,6 +95,8 @@ int main() {
 			char getCurrentChar = tape.scan();
 			string s = commands[PC][1];
 			char expectedChar = s[0];
+
+			if (expectedChar == 'b') expectedChar = ' ';
 			
 			if (getCurrentChar == expectedChar) {
 				int pos = stoi(commands[PC][2]);
