@@ -1,0 +1,11 @@
+goto 5
+write 1
+move left
+write 0
+move right
+move right
+write 1
+goto 4
+if 1 0
+if 0 20
+accept
