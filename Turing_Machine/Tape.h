@@ -23,6 +23,8 @@ private:
     int head;
     int size;
 
+    bool verbose;
+
 public:
     Tape();
     

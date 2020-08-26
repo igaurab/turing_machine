@@ -4,42 +4,39 @@
 
 using namespace std;
 
-class Controller {
-
-};
-
-
-
-
 int main() {
-	string commands[][3] = {
-		{"goto","5"},
+	// Program Counter
+	int PC = 0;
+	bool halt = false;
+	bool verbose = false;
 
-		{"write","1"},
-		{"move","left"},
-		{"write","0"},
-		{"move","right"},
-		{"move","right"},
-		{"write","1"},
+	string commands[100][4] = {
+		{"write","1"}, //1
+		{"move","left"}, //2
+		{"write","0"}, //3
+		{"move","right"}, //4
 
-		{"goto","4"},
-		{"if","1","20"},
+		{"move","right"}, //5
+		{"write","1"}, //6
 
-		{"accept"},
+		{"if","1","11"}, //7
+		{"if","0","9"}, //8
+
+		{"accept"}, //9
+		{"reject"}, //10
+
+		{"move","right"}, //11
+		{"write","0"}, //12
+		{"goto", "10"} //13
 	};
 
 	Tape tape;
-	using array_type = decltype(commands);
+	tape.moveToPosition(20);
+	while(!halt) {
+		if (verbose) cout << "Executing command at " << PC + 1 << endl;
 
-//http://www.cplusplus.com/forum/general/110091/
-//	std::cout << "array 'second' rank: " << std::rank<array_type>::value << ", "
-//		<< "nrows: " << std::extent<array_type>::value << ", "
-//		<< "ncols: " << std::extent<array_type, 1>::value << '\n';
-//op: array 'second' rank: 2, nrows: 5, ncols: 6
-
-	for (int i = 0; i < std::extent<array_type>::value ; i++) {
-		if (commands[i][0] == "move") {
-			if (commands[i][1] == "left") {
+		if (commands[PC][0] == "move") {
+			if (commands[PC][1] == "left") {
 				tape.moveLeft();
 			}
 			else {
@@ -47,41 +44,53 @@ int main() {
 			}
 		}
 
-		if (commands[i][0] == "write") {
-			string s = commands[i][1];
+		else if (commands[PC][0] == "write") {
+			string s = commands[PC][1];
 			char c = s[0];
 			tape.write(c);
 		}
 
-		if (commands[i][0] == "goto") {
-			string pos = commands[i][1];
-			tape.moveToPosition(stoi(pos));
+		else if (commands[PC][0] == "goto") {
+			int pos = stoi(commands[PC][1]);
+			if (pos >= 1) {
+				if(verbose) cout << "Goto Pos: " << pos << endl;
 
+				PC = pos - 2;
+			}
 		}
 
-		if (commands[i][0] == "if") {
+		else if (commands[PC][0] == "if") {
 			char getCurrentChar = tape.scan();
-			string s = commands[i][1];
+			string s = commands[PC][1];
 			char expectedChar = s[0];
-
+			
 			if (getCurrentChar == expectedChar) {
-				string pos = commands[i][2];
-				tape.moveToPosition(stoi(pos));
+				int pos = stoi(commands[PC][2]);
+				if (verbose) cout << "Goto Pos: " << pos << endl;
+				if (pos >= 1) {
+					PC = pos - 2;
+				}
 			}
 
 		}
 
-		if (commands[i][0] == "accept") {
+		else if (commands[PC][0] == "accept") {
 			cout << "Accepted" << endl;
 			tape.printTapeStats();
-
+			halt = true;
 		}
 
-		if (commands[i][0] == "reject") {
+		else if (commands[PC][0] == "reject") {
 			cout << "Rejected" << endl;
 			tape.printTapeStats();
-
+			halt = true;
 		}
+
+		else {
+			cout << "Unrecognized Input!!" << endl;
+		}
+
+		PC++;
 	}
 
 	return 1;

@@ -13,6 +13,8 @@ Tape::Tape() {
 	this->head = (int) TAPE_SIZE / 2;
 
 	this->size = TAPE_SIZE;
+
+	this->verbose = false;
 }
 
 int Tape::getSize() {
@@ -30,18 +32,24 @@ char Tape::scan() {
 
 void Tape::write(char c) {
 	this->tape[head] = c;
+	if(verbose) this->display();
+	if(verbose) std::cout << "Head: " << this->head << std::endl;
 }
 
 void Tape::moveLeft() {
 	if (this->head - 1 >= 0) {
 		this->head--;
 	}
+	if(verbose) std::cout << "ML: " << this->head << std::endl;
+
 }
 
 void Tape::moveRight() {
 	if (this->head + 1 < this->getSize() ) {
 		this->head++;
 	}
+	if(verbose) std::cout << "MR: " << this->head << std::endl;
+
 } 
 
 void Tape::moveToPosition(int x) {
