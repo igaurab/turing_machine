@@ -20,6 +20,7 @@ int main() {
 	map<string, int> labels;
 	regex r_label("label:");
 	regex r_lb("[a-zA-Z0-9]+");
+	regex r_digit("[0-9]+");
 
 	ifstream file;
 	std::string line;
@@ -39,13 +40,12 @@ int main() {
 			f_ignore = true;
 		}
 
-
 		while (iss >> temp) {
-			
+			if (temp[0] == '#') {
+				f_ignore = true;
+			}
+
 			if (word_index == 0) {
-				if (temp == "#") {
-						f_ignore = true;
-				}
 				
 				if (word_index == 0 && !f_ignore) {
 					if (regex_search(temp, r_label)) {
@@ -105,23 +105,53 @@ int main() {
 
 	while(!halt) {
 		if (verbose) cout << "Executing command at " << PC + 1 << endl;
+		string instr = commands[PC][0];
 
-		if (commands[PC][0] == "move") {
-			if (commands[PC][1] == "left") {
+		if (instr == "move") {
+			string arg = commands[PC][1];
+			if (arg == "left") {
 				tape.moveLeft();
 			}
-			else {
+			else if(arg == "right") {
 				tape.moveRight();
+			}
+			else if (arg == "br") {
+				while (tape.scan() != ' ') {
+					tape.moveRight();
+				}
+				tape.moveLeft();
+			}
+			else if (arg == "bl") {
+				while (tape.scan() != ' ') {
+					tape.moveLeft();
+				}
+				tape.moveRight();
+			}
+			else if (arg == "Br") {
+				while (tape.scan() != ' ') {
+					tape.moveRight();
+				}
+			}
+			else if (arg == "Bl") {
+				while (tape.scan() != ' ') {
+					tape.moveLeft();
+				}
+			}
+			else if(regex_search(arg,r_digit)) {
+				tape.moveToPosition(stoi(arg) - 1);
+			}
+			else {
+				//TODO: Throw error
 			}
 		}
 
-		else if (commands[PC][0] == "write") {
+		else if (instr == "write") {
 			string s = commands[PC][1];
 			char c = s[0];
 			tape.write(c);
 		}
 
-		else if (commands[PC][0] == "goto") {
+		else if (instr == "goto") {
 			int pos = labels.find(commands[PC][1])->second;
 			if (pos >= 1) {
 				if(verbose) cout << "Goto Pos: " << pos << endl;
@@ -130,41 +160,36 @@ int main() {
 			}
 		}
 
-		else if (commands[PC][0] == "if") {
+		else if (instr == "if") {
 			char getCurrentChar = tape.scan();
-			string s = commands[PC][1];
+			string arg = commands[PC][1];
 			
-			char expectedChar = s[0];
-
+			char expectedChar = arg[0];
 			if (expectedChar == 'b') expectedChar = ' ';
 			
 			if (getCurrentChar == expectedChar) {
 				int pos = labels.find(commands[PC][2])->second;
-			
 				if (pos >= 1) {
 					PC = pos - 2;
 				}
-				if (verbose) cout << "If Pos: " << pos << endl;
-				
-
+				if (verbose) cout << "If Jump: " << pos << endl;
 			}
-
 		}
 
-		else if (commands[PC][0] == "accept") {
+		else if (instr == "accept") {
 			cout << "Accepted" << endl;
 			tape.printTapeStats();
 			halt = true;
 		}
 
-		else if (commands[PC][0] == "reject") {
+		else if (instr== "reject") {
 			cout << "Rejected" << endl;
 			tape.printTapeStats();
 			halt = true;
 		}
 
 		else {
-			cout << "Unrecognized Input!!" << endl;
+			cout << "Unrecognized Instruction!" << endl;
 		}
 
 		PC++;
