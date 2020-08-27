@@ -62,6 +62,7 @@ int main() {
 					}
 				}
 			}
+			if(word_index == 1) f_ignore_word = false;
 			if (temp != " ") {
 				if (!f_ignore && !f_ignore_word) words.push_back(temp);
 				if (!f_ignore) word_index++;
@@ -73,30 +74,31 @@ int main() {
 		words.clear();
 	}
 	file.close();
-	cout << "Priniting commands" << endl;
-	for (int i = 0; i < commands.size(); i++)
-	{
-		for (int j = 0; j < commands[i].size(); j++)
+
+	if (verbose) {
+		cout << "Priniting commands" << endl;
+		for (int i = 0; i < commands.size(); i++)
 		{
-			cout << commands[i][j] << " ";
+			for (int j = 0; j < commands[i].size(); j++)
+			{
+				cout << commands[i][j] << " ";
+			}
+			cout << endl;
 		}
-		cout << endl;
 	}
-	cout << "Prinitng map" << endl;
-	// Create a map iterator and point to beginning of map
-	std::map<std::string, int>::iterator it = labels.begin();
-	// Iterate over the map using Iterator till end.
-	while (it != labels.end())
-	{
-		// Accessing KEY from element pointed by it.
-		std::string label = it->first;
-		// Accessing VALUE from element pointed by it.
-		int num = it->second;
-		std::cout << label << ":" << num << std::endl;
-		// Increment the Iterator to point to next entry
-		it++;
+	
+	if (verbose) {
+		cout << "Prinitng map" << endl;
+		std::map<std::string, int>::iterator it = labels.begin();
+		while (it != labels.end())
+		{
+			std::string label = it->first;
+			int num = it->second;
+			std::cout << label << ":" << num << std::endl;
+			it++;
+		}
 	}
-	//cout << labels.find("1")->second << endl;
+	
 
 	Tape tape;
 	tape.moveToPosition(15);
@@ -131,16 +133,20 @@ int main() {
 		else if (commands[PC][0] == "if") {
 			char getCurrentChar = tape.scan();
 			string s = commands[PC][1];
+			
 			char expectedChar = s[0];
 
 			if (expectedChar == 'b') expectedChar = ' ';
 			
 			if (getCurrentChar == expectedChar) {
-				int pos = labels.find(commands[PC][1])->second;
-				if (verbose) cout << "Goto Pos: " << pos << endl;
+				int pos = labels.find(commands[PC][2])->second;
+			
 				if (pos >= 1) {
 					PC = pos - 2;
 				}
+				if (verbose) cout << "If Pos: " << pos << endl;
+				
+
 			}
 
 		}
